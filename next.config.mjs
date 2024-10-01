@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  output: 'standalone'
+  output: 'standalone',
+  basePath: '/tarefas'
 };
 
 export default nextConfig;
