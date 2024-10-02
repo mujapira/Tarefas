@@ -3,7 +3,7 @@ import Image from "next/image"
 
 export default function Header() {
     return (
-        <header className="min-h-52 stone-950 w-screen flex items-center justify-center">
+        <header className="min-h-52 bg-[#0D0D0D] w-screen flex items-center justify-center">
             <Image src={Logo} width={150} alt="Logo" />
         </header>
     );

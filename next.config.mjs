@@ -2,7 +2,8 @@
 
 const nextConfig = {
   output: 'standalone',
-  basePath: '/tarefas'
+  basePath: '/tarefas',
+  reactStrictMode: false,
 };
 
 export default nextConfig;

@@ -3,7 +3,7 @@ import clipboard from "../assets/clipboard.svg"
 
 export default function EmptyTask() {
   return (
-    <div className="border-t rounded-t-lg border-gray-400 w-full h-auto">
+    <div className=" w-full h-auto">
       <div className="py-16 flex flex-col items-center justify-center gap-4">
         <Image
           src={clipboard}
