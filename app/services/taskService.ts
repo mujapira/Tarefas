@@ -2,7 +2,7 @@ import axios from "axios"
 import { ITask, ITaskFormData } from "../interfaces"
 
 const api = axios.create({
-  baseURL: "http://localhost:5149/api/tarefas",
+  baseURL: "https://mujapira.com/api/tarefas",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
