@@ -11,7 +11,7 @@ const api = axios.create({
 export const sessionService = {
   async checkSessionValidity(): Promise<boolean> {
     try {
-      const response = await api.get("/checkSession")
+      const response = await api.get("/checkSessionValidity")
       return response.status === 200
     } catch (error) {
       console.error(error)

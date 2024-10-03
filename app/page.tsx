@@ -19,9 +19,10 @@ import Task from "./components/Task"
 
 export default function Home() {
   const [sessionId, setSessionId] = useState<number>()
+  const [isTaskListLoading, setIsTaskListLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const checkUserSession = async () => {
+    const handleUserFirstContactWithPage = async () => {
       const sessionCookie = document.cookie
         .split(";")
         .find((cookie) => cookie.includes("SessionId"))
@@ -33,16 +34,31 @@ export default function Home() {
         }
       }
 
+      if (sessionCookie) {
+        const isSessionValid = sessionService.checkSessionValidity()
+
+        if (!isSessionValid) {
+          const newSessionId = await sessionService.createSession()
+          if (newSessionId) {
+            setSessionId(newSessionId)
+          }
+        }
+      }
+
       const sessionIdFromCookie = Number(sessionCookie?.split("=")[1])
 
       setSessionId(sessionIdFromCookie)
 
       if (sessionCookie) {
         const sessionTasks = await taskService.fetchTasks(sessionIdFromCookie)
+        if (sessionTasks) {
+          setTasks(sessionTasks)
+          setIsTaskListLoading(false)
+        }
       }
     }
 
-    checkUserSession()
+    handleUserFirstContactWithPage()
   }, [])
 
   const [tasks, setTasks] = useState<ITask[]>([])
@@ -52,13 +68,13 @@ export default function Home() {
   async function handleCreateNewTask(e: FormEvent) {
     e.preventDefault()
 
-    const newTaskFormData: ITaskFormData = {
+    const formData: ITaskFormData = {
       title: "",
       description: newTaskText,
       sessionId: sessionId!,
     }
 
-    await taskService.createTask(newTaskFormData)
+    await taskService.createTask(formData)
 
     const newTask: ITask = {
       id: Math.random().toString(36).substr(2, 9),
@@ -85,28 +101,28 @@ export default function Home() {
   function handleDeleteTask(id: string) {
     const filteredTasks = tasks.filter((task) => task.id !== id)
 
+    taskService.deleteTask(Number(id))
+
     setTasks(filteredTasks)
   }
 
   function handleFinishTask(id: string) {
     const filteredTasks = tasks.filter((task) => task.id !== id)
     const task = tasks.filter((task) => task.id === id)
+    
     const updatedTask = task[0]
+    taskService.updateTask(Number(id), updatedTask)
 
     if (updatedTask.isCompleted === false) {
       updatedTask.isCompleted = true
       setCompletedTasks((prevState) => prevState + 1)
     } else {
-      return
+      updatedTask.isCompleted = false
+      setCompletedTasks((prevState) => prevState - 1)
     }
 
     setTasks([...filteredTasks, updatedTask])
   }
-
-  useEffect(() => {
-    const stateJSON = JSON.stringify(tasks)
-    localStorage.setItem("@ignite:tasks-state-1.0.0", stateJSON)
-  }, [tasks])
 
   const isNewTaskEmpty = newTaskText.length === 0
   return (
@@ -142,52 +158,59 @@ export default function Home() {
           </form>
         </div>
 
-        <div className="taskList mt-16 max-w-[46rem] w-full flex flex-col items-center justify-center gap-6">
-          <header className="wrapper flex items-center justify-between w-full">
-            <span className="created text-sm text-blue-400 font-bold flex justify-between items-center gap-2">
-              Tarefas criadas{" "}
-              <span className="text-center bg-[#333333] text-gray-200 py-1 px-2 rounded-lg text-xs shadow-sm">
-                {tasks.length}
-              </span>
-            </span>
-            {tasks.length >= 1 ? (
-              <span className="finished text-sm text-indigo-600 font-bold flex justify-between items-center gap-2">
-                Concluídas{" "}
-                <span className="text-center bg-[#333333] text-gray-200 py-1 px-2 rounded-lg text-xs shadow-sm">
-                  {completedTasks} de {tasks.length}
-                </span>
-              </span>
-            ) : (
-              <span className="finished text-sm text-indigo-600 font-bold flex justify-between items-center gap-2">
-                Concluídas{" "}
+        {isTaskListLoading && (
+          <div className="loadingTasks text-gray-200 text-center mt-16">
+            <p>Carregando tarefas...</p>
+          </div>
+        )}
+        {!isTaskListLoading && (
+          <div className="taskList mt-16 max-w-[46rem] w-full flex flex-col items-center justify-center gap-6">
+            <header className="wrapper flex items-center justify-between w-full">
+              <span className="created text-sm text-blue-400 font-bold flex justify-between items-center gap-2">
+                Tarefas criadas{" "}
                 <span className="text-center bg-[#333333] text-gray-200 py-1 px-2 rounded-lg text-xs shadow-sm">
                   {tasks.length}
                 </span>
               </span>
-            )}
-          </header>
+              {tasks.length >= 1 ? (
+                <span className="finished text-sm text-indigo-600 font-bold flex justify-between items-center gap-2">
+                  Concluídas{" "}
+                  <span className="text-center bg-[#333333] text-gray-200 py-1 px-2 rounded-lg text-xs shadow-sm">
+                    {completedTasks} de {tasks.length}
+                  </span>
+                </span>
+              ) : (
+                <span className="finished text-sm text-indigo-600 font-bold flex justify-between items-center gap-2">
+                  Concluídas{" "}
+                  <span className="text-center bg-[#333333] text-gray-200 py-1 px-2 rounded-lg text-xs shadow-sm">
+                    {tasks.length}
+                  </span>
+                </span>
+              )}
+            </header>
 
-          {tasks.length === 0 ? (
-            <EmptyTask />
-          ) : (
-            tasks.map((task) => {
-              return (
-                <div
-                  key={task.id}
-                  className="main border-tl-lg border-tr-lg border-t border-transparent w-full h-auto">
-                  <div className="task flex w-full justify-between items-start bg-[#262626] text-gray-100 p-4 gap-3 border border-gray-400 rounded-lg">
-                    <Task
-                      task={task}
-                      onFinish={() => handleFinishTask(task.id)}
-                      onDelete={() => handleDeleteTask(task.id)}
-                      isFinished={task.isCompleted}
-                    />
+            {tasks.length === 0 ? (
+              <EmptyTask />
+            ) : (
+              tasks.map((task) => {
+                return (
+                  <div
+                    key={task.id}
+                    className="main border-tl-lg border-tr-lg border-t border-transparent w-full h-auto">
+                    <div className="task flex w-full justify-between items-start bg-[#262626] text-gray-100 p-4 gap-3 border border-gray-400 rounded-lg">
+                      <Task
+                        task={task}
+                        onFinish={() => handleFinishTask(task.id)}
+                        onDelete={() => handleDeleteTask(task.id)}
+                        isFinished={task.isCompleted}
+                      />
+                    </div>
                   </div>
-                </div>
-              )
-            })
-          )}
-        </div>
+                )
+              })
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

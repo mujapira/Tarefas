@@ -1,5 +1,5 @@
 import axios from "axios"
-import { ITaskFormData } from "../interfaces"
+import { ITask, ITaskFormData } from "../interfaces"
 
 const api = axios.create({
   baseURL: "http://localhost:5149/api/tarefas",
@@ -10,18 +10,39 @@ const api = axios.create({
 })
 
 export const taskService = {
-  async fetchTasks(sessionId: number): Promise<void> {
+  async fetchTasks(sessionId: number): Promise<ITask[]> {
     try {
       const response = await api.get(`/${sessionId}`)
-      console.log(response.data)
+      const responseData: ITask[] = response.data
+
+      return responseData
+      
+    } catch (error) {
+      console.error(error)
+    }
+
+    return []
+  },
+
+  async createTask(formData: ITaskFormData): Promise<void> {
+    try {
+      await api.post("", formData, {})
     } catch (error) {
       console.error(error)
     }
   },
 
-  async createTask(formData: ITaskFormData): Promise<void> {
+  async updateTask(taskId: number, updatedTask: ITask): Promise<void> {
     try {
-      await api.post("", formData)
+      await api.put(`/${taskId}`, updatedTask);
+    } catch (error) {
+      console.error("Erro ao atualizar a tarefa:", error);
+    }
+  },
+
+  async deleteTask(taskId: number): Promise<void> {
+    try {
+      await api.delete(`/${taskId}`)
     } catch (error) {
       console.error(error)
     }
