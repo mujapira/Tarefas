@@ -21,7 +21,7 @@ export const sessionService = {
       } else {
         console.error("An unknown error occurred:", error)
       }
-      return false
+      return false 
     }
   },
 
