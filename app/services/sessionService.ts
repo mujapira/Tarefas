@@ -1,30 +1,58 @@
 import axios from "axios"
+import api, { ApiResponse } from "./api"
+import { handleApiError } from "./apiErrorHandler"
 
-const api = axios.create({
-  baseURL: "http://localhost:5149/api/tarefas",
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json"
-  }
-})
+enum SessionEndpoints {
+  CheckSessionValidity = "/checkSessionValidity",
+  CreateSession = "/createSession",
+  RetrieveSessionId = "/retrieveSession/",
+}
 
 export const sessionService = {
   async checkSessionValidity(): Promise<boolean> {
     try {
-      const response = await api.get("/checkSessionValidity")
+      const response: ApiResponse<void> = await api.get(
+        SessionEndpoints.CheckSessionValidity
+      )
       return response.status === 200
-    } catch (error) {
-      console.error(error)
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleApiError(error)
+      } else {
+        console.error("An unknown error occurred:", error)
+      }
       return false
     }
   },
 
-  async createSession(): Promise<number | null> {
+  async createSession(): Promise<string | null> {
     try {
-      const response = await api.post<{ sessionId: number }>("/createSession")
+      const response: ApiResponse<{ sessionId: string }> = await api.post(
+        SessionEndpoints.CreateSession
+      )
       return response.data.sessionId
-    } catch (error) {
-      console.error(error)
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleApiError(error)
+      } else {
+        console.error("An unknown error occurred:", error)
+      }
+      return null
+    }
+  },
+
+  async retrieveSession(sessionId: string): Promise<string | null> {
+    try {
+      const response: ApiResponse<{ sessionId: string }> = await api.get(
+        SessionEndpoints.RetrieveSessionId + sessionId
+      )
+      return response.data.sessionId
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleApiError(error)
+      } else {
+        console.error("An unknown error occurred:", error)
+      }
       return null
     }
   },

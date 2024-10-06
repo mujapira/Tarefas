@@ -4,11 +4,11 @@ export interface ITask {
   description: string
   createdAt: Date
   isCompleted: boolean
-  sessionId: number
+  sessionId: string
 }
 
 export interface ITaskFormData {
   title: string
   description: string
-  sessionId: number
+  sessionId: string
 }

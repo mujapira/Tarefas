@@ -1,50 +1,61 @@
-import axios from "axios"
 import { ITask, ITaskFormData } from "../interfaces"
-
-const api = axios.create({
-  baseURL: "http://localhost:5149/api/tarefas",
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-})
+import api from "./api"
+import { handleApiError } from "./apiErrorHandler" // Certifique-se de que a função handleApiError está importada
+import axios from "axios"
 
 export const taskService = {
-  async fetchTasks(sessionId: number): Promise<ITask[]> {
+  async fetchTasks(sessionId: string): Promise<ITask[]> {
     try {
       const response = await api.get(`/${sessionId}`)
       const responseData: ITask[] = response.data
 
       return responseData
-      
-    } catch (error) {
-      console.error(error)
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleApiError(error)
+      } else {
+        console.error("An unknown error occurred:", error)
+      }
     }
 
     return []
   },
 
-  async createTask(formData: ITaskFormData): Promise<void> {
+  async createTask(formData: ITaskFormData): Promise<ITask> {
     try {
-      await api.post("", formData, {})
-    } catch (error) {
-      console.error(error)
+      const task = await api.post("", formData, {})
+      return task.data
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleApiError(error)
+      } else {
+        console.error("An unknown error occurred:", error)
+      }
+      return {} as ITask
     }
   },
 
-  async updateTask(taskId: number, updatedTask: ITask): Promise<void> {
+  async updateTask(taskId: string, updatedTask: ITask): Promise<void> {
     try {
-      await api.put(`/${taskId}`, updatedTask);
-    } catch (error) {
-      console.error("Erro ao atualizar a tarefa:", error);
+      await api.put(`/${taskId}`, updatedTask)
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleApiError(error)
+      } else {
+        console.error("An unknown error occurred:", error)
+      }
     }
   },
 
-  async deleteTask(taskId: number): Promise<void> {
+  async deleteTask(taskId: string): Promise<void> {
     try {
       await api.delete(`/${taskId}`)
-    } catch (error) {
-      console.error(error)
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        handleApiError(error)
+      } else {
+        console.error("An unknown error occurred:", error)
+      }
     }
   },
 }

@@ -1,5 +1,5 @@
 import Image from "next/image"
-import clipboard from "../assets/clipboard.svg"
+import clipboard from "../../assets/clipboard.svg"
 
 export default function EmptyTask() {
   return (
