@@ -4,14 +4,6 @@ import "./globals.css"
 import { cookies } from "next/headers"
 import { SessionProvider } from "./components/SessionContext"
 import { Toaster } from "@/components/ui/toaster"
-import { Tooltip, TooltipProvider } from "@radix-ui/react-tooltip"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { TaskProvider } from "./components/TaskContext"
 import { ModalProvider } from "./components/ModalContext"
 

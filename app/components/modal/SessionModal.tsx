@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -20,7 +19,7 @@ type SessionModalProps = {
 }
 
 export default function SessionModal({ closeModal }: SessionModalProps) {
-  const { retrieveSession, sessionId, createSession } = useSession()
+  const { retrieveSession, createSession } = useSession()
   const [currentStep, setCurrentStep] = useState(1)
   const { loadTasks } = useTask()
   const [sessionIdToRetrieve, setSessionIdToRetrieve] = useState<string>("")

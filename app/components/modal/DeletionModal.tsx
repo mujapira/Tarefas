@@ -9,15 +9,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useTask } from "../TaskContext"
+import { DeletionModalPayload } from "../ModalContext"
 
 type DeletionModalProps = {
   closeModal: () => void
-  taskId: string
+  payload: DeletionModalPayload
 }
 
 export default function DeletionModal({
   closeModal,
-  taskId,
+  payload,
 }: DeletionModalProps) {
   const { deleteTask } = useTask()
 
@@ -38,7 +39,7 @@ export default function DeletionModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={closeModal}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={() => handleDeleteTask(taskId)}>
+          <AlertDialogAction onClick={() => handleDeleteTask(payload.taskId)}>
             Excluir tarefa
           </AlertDialogAction>
         </AlertDialogFooter>

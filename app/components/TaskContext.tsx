@@ -30,7 +30,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     if (sessionId && isSessionValid) {
       loadTasks();
     }
-  }, [sessionId, isSessionValid]);
+  }, [sessionId, isSessionValid,]);
 
   const loadTasks = async () => {
     setIsTaskListLoading(true)

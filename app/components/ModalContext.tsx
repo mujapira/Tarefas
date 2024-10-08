@@ -1,32 +1,33 @@
 "use client"
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-} from "react"
+import React, { createContext, useContext, useState } from "react"
 import DeletionModal from "./modal/DeletionModal"
 import SessionModal from "./modal/SessionModal"
 
 type ModalType = "session" | "deletion" | null
 
+export interface DeletionModalPayload {
+  taskId: string
+}
+
+type ModalPayload = DeletionModalPayload | null
+
 interface ModalContextType {
-  openModal: (type: ModalType, payload?: any) => void
+  openModal: (type: ModalType, payload?: ModalPayload) => void
   closeModal: () => void
   modalType: ModalType
-  modalPayload?: any
+  modalPayload?: ModalPayload
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined)
 
 export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   const [modalType, setModalType] = useState<ModalType>(null)
-  const [modalPayload, setModalPayload] = useState<any>(null)
+  const [modalPayload, setModalPayload] = useState<ModalPayload>(null)
 
-
-  const openModal = (type: ModalType, payload?: any) => {
+  const openModal = (type: ModalType, payload?: ModalPayload) => {
     setModalType(type)
-    setModalPayload(payload)
+    if (payload) setModalPayload(payload)
   }
 
   const closeModal = () => {
@@ -44,10 +45,9 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       {modalType === "deletion" && (
         <DeletionModal
           closeModal={closeModal}
-          taskId={modalPayload?.taskId}
+          payload={modalPayload as DeletionModalPayload}
         />
       )}
-
     </ModalContext.Provider>
   )
 }
